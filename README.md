@@ -12,6 +12,10 @@ Right now, it's only the interface to the game.
 ## Installation
 Using the environmen.yml-File (edit the environment name first to make sure you don't overwrite your own environment)
 
-conda env create
+``conda env create``
+
+Start the development server with
+
+``python viergewinnt.py``
 
 
