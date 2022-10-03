@@ -10,7 +10,7 @@ Right now, it's only the interface to the game.
 - Simple heuristic computer enemy
 
 ## Installation
-Using the environmen.yml-File (edit the environment name first to make sure you don't overwrite your own environment)
+Using the ``environment.yml``-File (edit the environment name first to make sure you don't overwrite your own environment)
 
 ``conda env create``
 
