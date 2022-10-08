@@ -1,51 +1,35 @@
 import dash
 from dash import dcc, html, Input, Output, State, ctx
-import sys
-import pandas as pd
 import plotly.graph_objects as go
-import dash_cytoscape as cyto
-
-# Das Spielfeld für Vier Gewinnt malen
-fig = go.Figure()
-fig.update_xaxes(range=[0, 7], zeroline=True,showgrid=False)
-fig.update_yaxes(range=[0, 6])
-fig.update_layout(xaxis_title=False, yaxis_title=False)
-fig.update_layout()#width=700*0.8,height=600*0.8)
-fig.update_layout(paper_bgcolor='rgba(0,0,0,0)')
-fig.update_layout(plot_bgcolor='rgba(0,0,0,0)')
-fig.update_xaxes(visible=False)
-fig.update_yaxes(visible=False)
-
-
-# Mit Cyto eine Zeichnung machen
-mynodes=[]
-for xi in range(0,7):
-    for yi in range(0,6):
-        sh={'data': {'id': str(xi)+"."+str(yi), 'label': str(xi)+"."+str(yi)},
-                'position': {'x': xi*100+150, 'y': yi*100+150},
-                'locked':True, 'classes':''}
-        mynodes.append(sh)
-
-default_stylesheet = [
-    {
-        'selector': 'node',
-        'style': {
-            'background-color': '#BFD7B5',
-            'label': 'data(label)'
-        }
-    },
-    {   
-        'selector': '.red',
-        'style' : {
-            'background-color': 'red'
-         }
-    }
-]
+import numpy 
 
 # dash Layout aufsetzen
 app = dash.Dash(__name__) 
 server=app.server
 
+#Einfach mal alle Buttons durchnummeriere
+allids=[]
+allinputs=[]
+alloutputs=[]
+buttons=[]
+for xi in range(0,7):
+    for yi in range(0,6):
+        myid=str(xi)+str(yi)
+        allids.append(myid)
+        allinputs.append(Input(myid,'n_clicks'))
+        alloutputs.append(Output(myid,'className'))
+        buttons.append(
+            html.Div(className="chipstuete",
+                    children=
+                    html.Button(
+                        str(xi)+str(yi),
+                        id=str(xi)+str(yi), 
+                        className="chips grau",
+                        style={"aspect-ratio":"1/1"},
+                        n_clicks=0
+                    )))   
+
+# DASH setup
 app.layout = html.Div(
     className="container",
     style={"max-width":"1200px"},
@@ -54,30 +38,13 @@ app.layout = html.Div(
         html.Div(className="row",
             children=[
                 html.Div(
-                    className="nine columns",
-                    style={"background-color":"rgb(210,210,220)","aspect-ratio":"7/6"},
-                    children=[
-                        html.Div(
-                            cyto.Cytoscape(
-                                id='meingraph',
-                                stylesheet=default_stylesheet, 
-                                panningEnabled=False,
-                                userZoomingEnabled=False,
-                                layout={'name': 'preset'},
-                                style={'width':'100%',
-                                    'height':'100%'},
-                                elements=mynodes
-                            ),
-                            style={
-                                "aspect-ratio":"7/6"
-                            }
-                        )
-                    ]
+                    className="seven columns",
+                    style={"background-color":"rgb(210,210,220)","aspect-ratio":"7/6","padding-top":"10px"},
+                    children=buttons
                 ),
                 html.Div(
                     id="kommandobereich",
                     className="three columns",
-                    # style={"background-color":"red"},
                     children=[
                         dcc.Input(
                             id='input-on-submit', 
@@ -108,16 +75,19 @@ app.layout = html.Div(
     ]
 )
 
-# Callback für das drücken eines Nodes
-@app.callback(Output('meingraph', 'elements'),
-              [Input('meingraph', 'tapNodeData')],
-              State('meingraph', 'elements'))
-def displayTapNode(data,curele):
-    elements=curele
-    if data is not None:
-        indexe=[i for i, elem in enumerate(elements) if elem["data"]["id"]==data["id"]]   
-        elements[indexe[0]]["classes"]="red" 
-    return elements
+
+# Callback für das drücken eines Buttons
+@app.callback(Output('ausgabefeld', 'value'),
+              alloutputs[0],
+              *allinputs)
+def chipangeklickt(b00,b10,b20,b30,b40,b50,b60,
+                   b01,b11,b21,b31,b41,b51,b61,
+                   b02,b12,b22,b32,b42,b52,b62,
+                   b03,b13,b23,b33,b43,b53,b63,
+                   b04,b14,b24,b34,b44,b54,b64,
+                   b05,b15,b25,b35,b45,b55,b65):
+
+    return ctx.triggered_id,"chips rot"
 
 if __name__ == '__main__':
     app.run_server(debug=True)

@@ -1,12 +1,9 @@
 name: vier
 dependencies:
  - numpy
- - pandas
  - gunicorn
  - plotly
  - dash
- - nbconvert
- - jupyter
  - pip
  - pip:
      - dash
