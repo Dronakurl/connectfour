@@ -22,7 +22,7 @@ for xi in range(0,7):
             html.Div(className="chipstuete",
                     children=
                     html.Button(
-                        str(xi)+str(yi),
+                        "",
                         id=str(xi)+str(yi), 
                         className="chips grau",
                         style={"aspect-ratio":"1/1"},
@@ -75,10 +75,10 @@ app.layout = html.Div(
     ]
 )
 
-
-# Callback für das drücken eines Buttons
+from boardfunctions import converttoouputlist,sm
+# Callback für das drücken der Buttons
 @app.callback(Output('ausgabefeld', 'value'),
-              alloutputs[0],
+              *alloutputs,
               *allinputs)
 def chipangeklickt(b00,b10,b20,b30,b40,b50,b60,
                    b01,b11,b21,b31,b41,b51,b61,
@@ -86,8 +86,14 @@ def chipangeklickt(b00,b10,b20,b30,b40,b50,b60,
                    b03,b13,b23,b33,b43,b53,b63,
                    b04,b14,b24,b34,b44,b54,b64,
                    b05,b15,b25,b35,b45,b55,b65):
-
-    return ctx.triggered_id,"chips rot"
+    if ctx.triggered_id is None:
+        raise dash.exceptions.PreventUpdate
+    else:
+        global sm
+        x=int(ctx.triggered_id[0])
+        y=int(ctx.triggered_id[1])
+        sm[x][y]=1.0
+        return ctx.triggered_id,*converttoouputlist(sm)
 
 if __name__ == '__main__':
     app.run_server(debug=True)

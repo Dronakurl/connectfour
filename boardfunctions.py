@@ -5,8 +5,22 @@ sm=[]
 sm=numpy.zeros((7,6))
 
 def converttostyledict(inputsm):
-    dict(enumerate(inputsm.flatten(), 1))
+    newdict={}
+    stylemap={0.0:'chips grau',1.0:'chips rot',2.0:'chips gelb'}
+    for xkey, row in dict(enumerate(inputsm)).items():
+        for ykey, value in dict(enumerate(row)).items():
+            newdict[str(xkey)+str(ykey)]=stylemap[value] 
+    return newdict
 
-print(convertostyledict(sm))
+def converttoouputlist(inputsm):
+    newlist=[]
+    stylemap={0.0:'chips grau',1.0:'chips rot',2.0:'chips gelb'}
+    for xkey, row in dict(enumerate(inputsm)).items():
+        for ykey, value in dict(enumerate(row)).items():
+            newlist.append(stylemap[value])
+    return newlist
 
+# print(converttostyledict(sm))
+# print(list(enumerate(sm)))
+# print(sm.tolist())
 
