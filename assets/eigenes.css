@@ -1,0 +1,29 @@
+.chipstuete {
+	text-align:center; 
+	display:inline-block; 
+	width:14.28%;
+    height:16.66%;
+}
+
+.chips {
+	border-radius:50%;		
+	width:81%;
+	height:auto;
+	aspect-ratio:1/1;
+	font-size:5pt;
+}
+
+.grau {
+	background-color:rgb(100,100,100);
+}
+
+.rot {
+	background-color:red;
+}
+
+.gelb {
+	background-color:yellow;
+}
+	
+
+	
