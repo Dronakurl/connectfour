@@ -1,16 +1,45 @@
-.chipstuete {
+body {
+    background-color:cornflowerblue;
+}
+
+.logo {
+    width:50%;
+    display:inline;
+    /* background-color:darkblue; */
+    font-weight:bolder;
+    font-size:36pt;
+    color:white;
+    text-align:center;
+    vertical-align:center;
+	border-radius:20%;		
+}
+
+.buttontuete {
 	text-align:center; 
 	display:inline-block; 
-	width:14.28%;
+	width:14.27%;
+}
+
+.mybutton {
+	width:51%;
+}
+
+.chipstuete {
+	text-align:center; 
+    /* border-style:dotted; */
+	display:inline-block; 
+	width:14.27%;
     height:16.66%;
 }
 
 .chips {
 	border-radius:50%;		
-	width:81%;
+	display:inline-block; 
+	width:14.27%;
+	width:71%;
 	height:auto;
 	aspect-ratio:1/1;
-	font-size:5pt;
+	font-size:10pt;
 }
 
 .grau {
@@ -25,5 +54,12 @@
 	background-color:yellow;
 }
 	
-
+#whoseturn {
+	border-radius:50%;		
+    text-align:center;
+    display:inline-block;
+    margin-left:10px;
+    padding:5px;
+    width:140px;
+}
 	

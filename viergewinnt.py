@@ -3,66 +3,96 @@ from dash import dcc, html, Input, Output, State, ctx
 import plotly.graph_objects as go
 import numpy 
 
-# dash Layout aufsetzen
-app = dash.Dash(__name__) 
-server=app.server
-
-#Einfach mal alle Buttons durchnummeriere
-allids=[]
+#Einfach mal alle Chips durchnummeriere
 allinputs=[]
 alloutputs=[]
+chips=[]
 buttons=[]
-for xi in range(0,7):
-    for yi in range(0,6):
+for xi in range(0,6):
+   for yi in range(0,7):
         myid=str(xi)+str(yi)
-        allids.append(myid)
-        allinputs.append(Input(myid,'n_clicks'))
         alloutputs.append(Output(myid,'className'))
-        buttons.append(
+        chips.append(
             html.Div(className="chipstuete",
                     children=
-                    html.Button(
+                    html.Div(
+                        # str(xi)+str(yi),
                         "",
                         id=str(xi)+str(yi), 
-                        className="chips grau",
-                        style={"aspect-ratio":"1/1"},
-                        n_clicks=0
+                        className="chips grau"
                     )))   
 
-# DASH setup
+for yi in range(0,7):
+    bid="b"+str(yi)
+    allinputs.append(Input(bid,'n_clicks'))
+    buttons.append(html.Div(className="buttontuete",
+                    children=html.Button(
+                        "",
+                        id=bid,
+                        className="mybutton button-primary",
+                        n_clicks=0
+                        )
+                    ))
+
+## dash Layout aufsetzen
+external_stylesheets = ['https://fonts.googleapis.com/css2?family=Lato&display=swap']
+app = dash.Dash(__name__,external_stylesheets=external_stylesheets) 
+server=app.server
+
+# app.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
+app.css.config.serve_locally = True
+
 app.layout = html.Div(
     className="container",
-    style={"max-width":"1200px"},
+    style={"max-width":"1200px",
+        "margin-top":"15px"},
     children=[
-        html.H1(children='Vier gewinnt'),
         html.Div(className="row",
             children=[
                 html.Div(
                     className="seven columns",
-                    style={"background-color":"rgb(210,210,220)","aspect-ratio":"7/6","padding-top":"10px"},
+                    style={"background-color":"lightyellow",
+                        "padding-top":"10px"},
                     children=buttons
+                    ),
+                html.Div(
+                    className="five columns",
+                    style={"text-align":"center","vertical-align":"center"},
+                    children=html.Div(className="logo",children="4 GEWINNT!")
+                    )
+                ]
+            ),
+        html.Div(className="row",
+            children=[
+                html.Div(
+                    className="seven columns",
+                    style={"background-color":"rgb(210,210,220)",
+                        "padding-top":"10px",
+                        "padding-bottom":"10px",
+                        },
+                    children=chips
                 ),
                 html.Div(
                     id="kommandobereich",
-                    className="three columns",
+                    className="five columns",
+                    style={"text-align":"center"},
                     children=[
-                        dcc.Input(
-                            id='input-on-submit', 
-                            className="u-full-width", 
-                            type='text'
-                        ),
                         html.Button(
-                            "Abschicken",
-                            id='submit-val', 
+                            "Neustart",
+                            id='neustart', 
                             className="button-primary", 
-                            n_clicks=0,
-                            value="Submit"
+                            n_clicks=0
+                        ),
+                        html.Div(
+                            "Wer ist dran",
+                            id="whoseturn",
+                            style={"background-color":"red"}
                         ),
                         dcc.Textarea(
                             id="ausgabefeld",
                             className="u-full-width",
                             style={
-                                "display":"block",
+                                "display":"none",
                                 "margin-top":"20px",
                                 "height":"300px"
                             },
@@ -75,25 +105,35 @@ app.layout = html.Div(
     ]
 )
 
-from boardfunctions import converttoouputlist,sm
+# from boardfunctions import converttoouputlist,sm
+from connectfour import Connectfour
+cf=Connectfour()
+
 # Callback für das drücken der Buttons
-@app.callback(Output('ausgabefeld', 'value'),
-              *alloutputs,
-              *allinputs)
-def chipangeklickt(b00,b10,b20,b30,b40,b50,b60,
-                   b01,b11,b21,b31,b41,b51,b61,
-                   b02,b12,b22,b32,b42,b52,b62,
-                   b03,b13,b23,b33,b43,b53,b63,
-                   b04,b14,b24,b34,b44,b54,b64,
-                   b05,b15,b25,b35,b45,b55,b65):
+@app.callback(*alloutputs,
+              Output('whoseturn','style'),
+              *allinputs,
+              Input('neustart','n_clicks'))
+def udpateboard(b0,b1,b2,b3,b4,b5,b6,nst):
+    global cf
     if ctx.triggered_id is None:
         raise dash.exceptions.PreventUpdate
+    elif ctx.triggered_id == "neustart":
+        cf.reset()
     else:
-        global sm
-        x=int(ctx.triggered_id[0])
-        y=int(ctx.triggered_id[1])
-        sm[x][y]=1.0
-        return ctx.triggered_id,*converttoouputlist(sm)
+        cf.doturn(int(ctx.triggered_id[1]))
+    return *cf.converttoouputlist(), cf.turntostyle()
+
+# @app.callback(Output('ausgabefeld',"value"),
+#               Input('neustart','n_clicks'))
+# def neustart(neustartbtn):
+#     if ctx.triggered_id is None:
+#         raise dash.exceptions.PreventUpdate
+#     else:
+#         global cf
+#         cf.reset()
+#         cf.print()
+#         return "Neustart"
 
 if __name__ == '__main__':
     app.run_server(debug=True)

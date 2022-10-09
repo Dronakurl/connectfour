@@ -2,7 +2,7 @@ import numpy
 
 # Speicher für den Zustand des Bretts
 sm=[]
-sm=numpy.zeros((7,6))
+sm=numpy.zeros((6,7))
 
 def converttostyledict(inputsm):
     newdict={}
