@@ -41,24 +41,24 @@ server=app.server
 
 # app.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
 app.css.config.serve_locally = True
+app.title="connect 4 - the game"
 
 app.layout = html.Div(
     className="container",
-    style={"max-width":"1200px",
-        "margin-top":"15px"},
+    style={ "max-width":"1200px",
+            "margin-top":"15px"},
     children=[
         html.Div(className="row",
             children=[
                 html.Div(
                     className="seven columns",
-                    style={"background-color":"lightyellow",
-                        "padding-top":"10px"},
+                    id="buttonrow",
                     children=buttons
                     ),
                 html.Div(
                     className="five columns",
-                    style={"text-align":"center","vertical-align":"center"},
-                    children=html.Div(className="logo",children="4 GEWINNT!")
+                    id="logobox",                    
+                    children=html.Div(id="logo",children="4 GEWINNT!")
                     )
                 ]
             ),
@@ -66,36 +66,33 @@ app.layout = html.Div(
             children=[
                 html.Div(
                     className="seven columns",
-                    style={"background-color":"rgb(210,210,220)",
-                        "padding-top":"10px",
-                        "padding-bottom":"10px",
-                        },
+                    id="board",
                     children=chips
                 ),
                 html.Div(
                     id="kommandobereich",
                     className="five columns",
-                    style={"text-align":"center"},
                     children=[
+                        html.Div(
+                            "red's turn",
+                            id="whoseturn",
+                            style={"background-color":"#D50000"}
+                        ),html.Br(),
                         html.Button(
                             "Neustart",
                             id='neustart', 
                             className="button-primary", 
                             n_clicks=0
                         ),
-                        html.Div(
-                            "Wer ist dran",
-                            id="whoseturn",
-                            style={"background-color":"red"}
+                        html.Button(
+                            "Save to disk",
+                            id='savetodisk', 
+                            className="button-primary", 
+                            n_clicks=0
                         ),
                         dcc.Textarea(
                             id="ausgabefeld",
                             className="u-full-width",
-                            style={
-                                "display":"none",
-                                "margin-top":"20px",
-                                "height":"300px"
-                            },
                             value="initaler Text",
                         )
                     ]
@@ -112,6 +109,7 @@ cf=Connectfour()
 # Callback für das drücken der Buttons
 @app.callback(*alloutputs,
               Output('whoseturn','style'),
+              Output('whoseturn','children'),
               *allinputs,
               Input('neustart','n_clicks'))
 def udpateboard(b0,b1,b2,b3,b4,b5,b6,nst):
@@ -122,18 +120,18 @@ def udpateboard(b0,b1,b2,b3,b4,b5,b6,nst):
         cf.reset()
     else:
         cf.doturn(int(ctx.triggered_id[1]))
-    return *cf.converttoouputlist(), cf.turntostyle()
 
-# @app.callback(Output('ausgabefeld',"value"),
-#               Input('neustart','n_clicks'))
-# def neustart(neustartbtn):
-#     if ctx.triggered_id is None:
-#         raise dash.exceptions.PreventUpdate
-#     else:
-#         global cf
-#         cf.reset()
-#         cf.print()
-#         return "Neustart"
+    return *cf.converttoouputlist(), *cf.turntostyle()
+
+@app.callback(Output('ausgabefeld',"value"),
+              Input('savetodisk','n_clicks'))
+def savetodisk(btn):
+    if ctx.triggered_id is None:
+        raise dash.exceptions.PreventUpdate
+    else:
+        global cf
+        cf.writetodisk()
+        return "geschrieben"
 
 if __name__ == '__main__':
     app.run_server(debug=True)
