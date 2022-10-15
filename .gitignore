@@ -2,4 +2,6 @@ Archiv/
 
 __py*
 
+*.csv
+*.ftr
 test.py

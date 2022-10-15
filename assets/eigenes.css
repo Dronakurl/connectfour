@@ -1,17 +1,6 @@
 body {
-    background-color:cornflowerblue;
-}
-
-.logo {
-    width:50%;
-    display:inline;
-    /* background-color:darkblue; */
-    font-weight:bolder;
-    font-size:36pt;
-    color:white;
-    text-align:center;
-    vertical-align:center;
-	border-radius:20%;		
+    background-color:rgb(10,10,10); 
+    /* background-color:#152d72; */ 
 }
 
 .buttontuete {
@@ -26,7 +15,6 @@ body {
 
 .chipstuete {
 	text-align:center; 
-    /* border-style:dotted; */
 	display:inline-block; 
 	width:14.27%;
     height:16.66%;
@@ -47,19 +35,80 @@ body {
 }
 
 .rot {
-	background-color:red;
+	background-color:#ff2323;
 }
 
 .gelb {
-	background-color:yellow;
+	background-color:#DBDD00;
 }
-	
+
+#logo {
+    width:50%;
+    display:inline;
+    font-weight:bolder;
+    font-size:36pt;
+    color:white;
+    text-align:center;
+    vertical-align:center;
+	border-radius:20%;		
+}
+
+#buttonrow {
+    background-color: #ff2323;
+    opacity: 1;
+    background-image:  linear-gradient(135deg, #DBDD00 25%, transparent 25%), linear-gradient(225deg, #DBDD00 25%, transparent 25%), linear-gradient(45deg, #DBDD00 25%, transparent 25%), linear-gradient(315deg, #DBDD00 25%, #D50000 25%);
+    background-position:  15px 0, 15px 0, 0 0, 0 0;
+    background-size: 30px 30px;
+    background-repeat: repeat;
+    padding-top:10px;
+}
+
 #whoseturn {
-	border-radius:50%;		
+	border-radius:10%;		
+    font-size:16pt;
     text-align:center;
     display:inline-block;
     margin-left:10px;
+    margin-bottom:8px;
     padding:5px;
     width:140px;
 }
-	
+
+#logobox {
+   text-align:center;
+    vertical-align:center;
+}
+
+#board {
+    /* background-color:#080E1F; */
+    background-color:rgb(30,30,50);
+    text-align:center;
+    padding-top:10px;
+    padding-bottom:10px;
+
+}
+
+#kommandobereich {
+    /* background-color:#080E1F; */
+    /* background-color:rgb(30,30,50); */
+    text-align:center;
+    padding-top:10px;
+    padding-bottom:10px;
+    /* height:500px; */
+}
+
+#neustart {
+    margin-left:8px;
+}
+
+#savetodisk {
+    margin-left:8px;
+} 
+
+#ausgabefeld {
+    display:none;
+    margin-top:20px;
+    height:300px;
+}
+
+
