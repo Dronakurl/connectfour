@@ -42,11 +42,18 @@ body {
 	background-color:#DBDD00;
 }
 
+#logobox {
+    text-align:center;
+    color:white;
+    font-size:3vh;
+    vertical-align:center;
+}
+
 #logo {
     width:50%;
     display:inline;
     font-weight:bolder;
-    font-size:36pt;
+    font-size:5vh;
     color:white;
     text-align:center;
     vertical-align:center;
@@ -74,10 +81,6 @@ body {
     width:140px;
 }
 
-#logobox {
-   text-align:center;
-    vertical-align:center;
-}
 
 #board {
     /* background-color:#080E1F; */
@@ -88,7 +91,7 @@ body {
 
 }
 
-#kommandobereich {
+#command {
     /* background-color:#080E1F; */
     /* background-color:rgb(30,30,50); */
     text-align:center;
@@ -97,7 +100,7 @@ body {
     /* height:500px; */
 }
 
-#neustart {
+#restart {
     margin-left:8px;
 }
 
@@ -105,7 +108,7 @@ body {
     margin-left:8px;
 } 
 
-#ausgabefeld {
+#textarea {
     display:none;
     margin-top:20px;
     height:300px;
