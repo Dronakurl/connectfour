@@ -6,7 +6,10 @@ Connect four - the game - implemented in python and dash.
 The project features:
 - dash web app to play the game, using the [Skeleton CSS framework](http://getskeleton.com/)
 - class for the actual game play (moves, store the status, etc)
-- class for a simple heuristic computer enemy. It calculates all possible 3 next moves and chooses the most valuable outcome.
+- class for a simple heuristic computer enemy. It calculates all possible 3 next moves and chooses the most valuable outcome
+
+## Limitation
+The dash GUI doesn't store the data in the browser session. I couldn'g get dash.store to work, because my objects don't serialize to json easily. so: Single-user only
 
 ## Installation
 Using the [``environment.yml``](https://github.com/Dronakurl/connectfour/blob/main/environment.yml)-file (edit the environment name first to make sure you don't overwrite your own environment)
