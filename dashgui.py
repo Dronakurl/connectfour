@@ -2,8 +2,9 @@ import dash
 from dash import dcc, html, Input, Output, State, ctx
 import plotly.graph_objects as go
 import numpy 
+import time
 
-#Einfach mal alle Chips durchnummeriere
+# initialize the board and buttons 
 allinputs=[]
 alloutputs=[]
 chips=[]
@@ -16,7 +17,6 @@ for xi in range(0,6):
             html.Div(className="chipstuete",
                     children=
                     html.Div(
-                        # str(xi)+str(yi),
                         "",
                         id=str(xi)+str(yi), 
                         className="chips grau"
@@ -41,7 +41,7 @@ server=app.server
 
 # app.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
 app.css.config.serve_locally = True
-app.title="connect 4 - the game"
+app.title="Connect 4 - the game"
 
 app.layout = html.Div(
     className="container",
@@ -58,7 +58,9 @@ app.layout = html.Div(
                 html.Div(
                     className="five columns",
                     id="logobox",                    
-                    children=html.Div(id="logo",children="4 GEWINNT!")
+                    children=[ html.Div(id="logo",children="CONNECT 4!"),
+                        html.Div(children="Tap buttons on the top to play"),
+                        html.Div(children="Computer plays yellow")]
                     )
                 ]
             ),
@@ -70,7 +72,7 @@ app.layout = html.Div(
                     children=chips
                 ),
                 html.Div(
-                    id="kommandobereich",
+                    id="command",
                     className="five columns",
                     children=[
                         html.Div(
@@ -79,8 +81,8 @@ app.layout = html.Div(
                             style={"background-color":"#D50000"}
                         ),html.Br(),
                         html.Button(
-                            "Neustart",
-                            id='neustart', 
+                            "restart",
+                            id='restart', 
                             className="button-primary", 
                             n_clicks=0
                         ),
@@ -90,50 +92,69 @@ app.layout = html.Div(
                             className="button-primary", 
                             n_clicks=0
                         ),
+                        dcc.Dropdown(
+                            ["player vs player","player vs computer"],
+                            "player vs player",
+                            id="modeselect"
+                        ),
                         dcc.Textarea(
-                            id="ausgabefeld",
+                            id="textarea",
                             className="u-full-width",
-                            value="initaler Text",
+                            value="text",
                         )
                     ]
                 )
             ]
         ),
+        dcc.Store(id="store")
     ]
 )
 
-# from boardfunctions import converttoouputlist,sm
+# TODO This is not multi-user-ready
+# the connectfour-Object cannot be serialized easily
+# because of some strange stuff with the int-numpy-array, thing
+# so jsonpickle doesn't work
+# The way forward is to store the data on the server
 from connectfour import Connectfour
 cf=Connectfour()
 
-# Callback für das drücken der Buttons
 @app.callback(*alloutputs,
               Output('whoseturn','style'),
               Output('whoseturn','children'),
+              # Output("store","data"),
               *allinputs,
-              Input('neustart','n_clicks'))
+              Input('restart','n_clicks'))
 def udpateboard(b0,b1,b2,b3,b4,b5,b6,nst):
+    # start = time.time()
     global cf
     if ctx.triggered_id is None:
         raise dash.exceptions.PreventUpdate
-    elif ctx.triggered_id == "neustart":
+    elif ctx.triggered_id == "restart":
         cf.reset()
     else:
         cf.doturn(int(ctx.triggered_id[1]))
+    # end = time.time()
+    # print("time to update board ", end - start)
 
-    return *cf.converttoouputlist(), *cf.turntostyle()
+    return (*cf.converttoouputlist(), *cf.turntostyle())
 
-@app.callback(Output('ausgabefeld',"value"),
-              Input('savetodisk','n_clicks'))
-def savetodisk(btn):
+@app.callback(Output('textarea',"value"),
+              Input('savetodisk','n_clicks'),
+              Input('modeselect','value'))
+def savetodisk(btn,value):
     if ctx.triggered_id is None:
         raise dash.exceptions.PreventUpdate
-    else:
+    elif ctx.triggered_id=="savetodisk":
         global cf
         cf.writetodisk()
-        return "geschrieben"
+        return "to disk"
+    elif ctx.triggered_id=="modeselect":
+        cf.mode=value
+        return "mode "+cf.mode+" selected"
+
+server=app.server
 
 if __name__ == '__main__':
     app.run_server(debug=True)
 
-# Starten mit gunicorn mydash:server -b :8000
+# stat with: gunicorn dashgui:server -b :8000

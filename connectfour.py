@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import brutalcomputer
 
 class Connectfour:
     def reset(self):
@@ -12,27 +13,31 @@ class Connectfour:
         self.gameid+=1
         # -1: still running, 1: red, 2: yellow, 3: tie
         self.endresult=-1
-        # number of sequences for each color: red,yellow and possible sequences 2,3,4
-        self.scount=[[0]*3 for i in range(2)]
+        # nmber of sequences for each color: red,yellow and possible sequences 2,3,4
+        self.scount=np.zeros((2,3),dtype=np.uint8)
+        # a weighted score for red an yellow sequences
+        self.score=np.zeros(2,dtype=np.uint8)
+        # a net score
+        self.netscore=0
 
-    def __init__(self):
+    def __init__(self,cf=None):
         self.gameid=1
+        self.mode="player vs player"
         # reset function should not wipe the memory, so it's not in reset function
         self.storage=pd.DataFrame(columns=[ "gameid",
                                             "turnid",
                                             "slotid",
                                             "sm",
-                                            "seqred2",
-                                            "seqred3",
-                                            "seqred4",
-                                            "seqyel2",
-                                            "seqyel3",
-                                            "seqyel4",
+                                            "scount",
+                                            "score",
+                                            "netscore",
                                             "endresult"])
         self.reset()
+        if isinstance(cf,Connectfour):
+            self.sm=np.copy(cf.sm)
 
     def print(self):
-        print("state of the board: ",self.sm)
+        print(self.sm)
         print("turn: ","red" if self.turn==1 else "yellow")
         print("turnid: ",self.turnid)
 
@@ -42,24 +47,23 @@ class Connectfour:
             self.gameid,
             self.turnid,
             self.slotid,
+            # the constructor and the list are needed, so that it's stored as object in pandas
             [np.array( self.sm )],
-            *self.scount[0],
-            *self.scount[1],
+            [np.array( self.scount)],
+            [np.array( self.score)],
+            self.netscore,
             self.endresult]],
             columns=[ "gameid",
                        "turnid",
                        "slotid",
                        "sm",
-                       "seqred2",
-                       "seqred3",
-                       "seqred4",
-                       "seqyel2",
-                       "seqyel3",
-                       "seqyel4",
+                       "scount",
+                       "score",
+                       "netscore",
                        "endresult"]
         )
         self.storage=pd.concat([self.storage,newrow])
-        print(self.storage)
+        # print(self.storage)
     
     def writetodisk(self,format="csv",file="storage"):
         print("write to: "+file)
@@ -70,7 +74,7 @@ class Connectfour:
 
     # Do one turn based on selected colum
     # and return whether it was an acceptable move
-    def doturn(self,col):
+    def doturn(self,col,countseq=True,saveoneturn=True):
         if self.endresult>0:
             return 0
 
@@ -81,14 +85,20 @@ class Connectfour:
             self.sm[firstincol,col]=self.turn
             self.slotid=col
             self.turnid+=1
-            self.countseq(redyellow=self.turn)
+            if countseq:
+                self.countseq(redyellow=self.turn)
             if self.findfour(redyellow=self.turn):
                 self.endresult=self.turn
             elif self.sm.all():
+                # all chips are filled, but no 4ers: tie
                 self.endresult=3
-            self.saveoneturn()
+            if saveoneturn:
+                self.saveoneturn()
             if self.endresult<0:
                 self.turn=2 if self.turn==1 else 1
+                if self.mode=="player vs computer" and self.turn==2:
+                    bc = brutalcomputer.Brutalcomputer(self,k=2)
+                    self.doturn(bc.nextturn(method="brutal"),countseq=countseq,saveoneturn=saveoneturn)
             return 1
         else:
             return -1
@@ -101,10 +111,9 @@ class Connectfour:
         for redyellowi in rllist:
             for seqc in range(3):
                 x=self.findseq(seq=seqc+2,redyellow=redyellowi)
-                # print("redyellowi,seq",redyellowi,seqc,x)
                 self.scount[redyellowi-1][seqc]=x
-        # self.print()
-        # print(self.scount)
+        self.score=(self.scount*np.array([2,5,1000])).sum(axis=1)
+        self.netscore=self.score[0]-self.score[1]
 
     def findseq(self,seq=2,redyellow=1):
         matches=0
@@ -135,8 +144,6 @@ class Connectfour:
         seqmat=np.all(diags[:,n]==redyellow,axis=2)
         matches+=seqmat.sum()
 
-        # print("finding seq for: ",redyellow)
-        # print("matches:",matches)
         return matches
 
     def randomdebug(self):
@@ -170,7 +177,15 @@ class Connectfour:
         else:
             return {"background-color":"red"},"ERROR" 
 
+# c=Connectfour()
+# c.doturn(col=1)
+# import jsonpickle
+# X=jsonpickle.encode(c)
+# print(x)
 
+# d=Connectfour(c)
+# c.print()
+# d.print()
 
 # c=Connectfour()
 # c.randomdebug()
