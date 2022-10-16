@@ -1,24 +1,31 @@
-# connectfour
-Connect four - the game - implemented in python and dash 
+# Connect four
 
-The game should work to play in a browser.
-Right now, it's only the interface to the game.
+Connect four - the game - implemented in python and dash.  
+[Connect four](https://en.wikipedia.org/wiki/Connect_Four) is a simple combinatory puzzle board game.
 
-## Future Features:
-- Class for the actual gameplay
-- Save and load games
-- Simple heuristic computer enemy
-- Machine Learning enemy
-- pysimplegui GUI, since dash is slow: https://www.pysimplegui.org/en/latest/
-- refactor dash callbacks to one callback per chip, perhaps thats faster
+The project features:
+- dash web app to play the game, using the [Skeleton CSS framework](http://getskeleton.com/)
+- class for the actual game play (moves, store the status, etc)
+- class for a simple heuristic computer enemy. It calculates all possible 3 next moves and chooses the most valuable outcome.
 
 ## Installation
-Using the ``environment.yml``-File (edit the environment name first to make sure you don't overwrite your own environment)
+Using the [``environment.yml``](https://github.com/Dronakurl/connectfour/blob/main/environment.yml)-file (edit the environment name first to make sure you don't overwrite your own environment)
 
 ``conda env create``
 
-Start the development server with
+Alternatively, you can install the packages listed in ``environment.yml``, using pip.
+
+Start the web server which runs dash with:
+
+``gunicorn dashgui:server -b :8000``
+
+The development/debug server starts with:
 
 ``python viergewinnt.py``
 
-
+## Future Features:
+- Save and load games
+- Machine Learning enemy
+- pysimplegui GUI, since dash is slow: https://www.pysimplegui.org/en/latest/
+- Performance improvements to the dash app, it's slow
+- refactor dash callbacks to one callback per chip, perhaps thats faster

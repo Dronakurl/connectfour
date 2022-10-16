@@ -136,7 +136,7 @@ def udpateboard(b0,b1,b2,b3,b4,b5,b6,nst):
     # end = time.time()
     # print("time to update board ", end - start)
 
-    return *cf.converttoouputlist(), *cf.turntostyle()
+    return (*cf.converttoouputlist(), *cf.turntostyle())
 
 @app.callback(Output('textarea',"value"),
               Input('savetodisk','n_clicks'),
