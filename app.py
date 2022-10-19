@@ -1,8 +1,21 @@
+# remove previous logs and old data storage
+import os
+os.system("rm -f *.log")
+os.system("cd file_system_store && find . -type f -name '*' -mmin +15 -exec rm {} \; && cd ..")
+import logging
+logging.basicConfig(filename='log.log', level=logging.DEBUG)
+logging.info("start the app")
 import dash
-from dash import dcc, html, Input, Output, State, ctx
-import plotly.graph_objects as go
+from dash_extensions.enrich import dcc, html, Dash, Output, Input, State, ServersideOutput
+from dash import ctx
 import numpy 
 import time
+import connectfour
+# for debugging
+import sys
+log_file = open("sysout.log","w")
+sys.stdout = log_file
+print("this will be written to message.log")
 
 # initialize the board and buttons 
 allinputs=[]
@@ -36,14 +49,13 @@ for yi in range(0,7):
 
 ## dash Layout aufsetzen
 external_stylesheets = ['https://fonts.googleapis.com/css2?family=Lato&display=swap']
-app = dash.Dash(__name__,external_stylesheets=external_stylesheets) 
-server=app.server
+dashapp = Dash(__name__,external_stylesheets=external_stylesheets) 
 
-# app.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
-app.css.config.serve_locally = True
-app.title="Connect 4 - the game"
+# dashapp.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
+dashapp.css.config.serve_locally = True
+dashapp.title="Connect 4 - the game"
 
-app.layout = html.Div(
+dashapp.layout = html.Div(
     className="container",
     style={ "max-width":"1200px",
             "margin-top":"15px"},
@@ -56,12 +68,10 @@ app.layout = html.Div(
                     children=buttons
                     ),
                 html.Div(
-                    className="five columns",
+                    className="three columns",
                     id="logobox",                    
-                    children=[ html.Div(id="logo",children="CONNECT 4!"),
-                        html.Div(children="Tap buttons on the top to play"),
-                        html.Div(children="Computer plays yellow")]
-                    )
+                    children=[ html.Div(id="logo",children="CONNECT 4!")
+                        ])
                 ]
             ),
         html.Div(className="row",
@@ -73,8 +83,10 @@ app.layout = html.Div(
                 ),
                 html.Div(
                     id="command",
-                    className="five columns",
+                    className="three columns",
                     children=[
+                        html.Div(children="Tap buttons on the top to play",className="explain"),
+                        html.Div(children="Computer plays yellow",className="explain"),
                         html.Div(
                             "red's turn",
                             id="whoseturn",
@@ -86,15 +98,9 @@ app.layout = html.Div(
                             className="button-primary", 
                             n_clicks=0
                         ),
-                        html.Button(
-                            "Save to disk",
-                            id='savetodisk', 
-                            className="button-primary", 
-                            n_clicks=0
-                        ),
                         dcc.Dropdown(
                             ["player vs player","player vs computer"],
-                            "player vs player",
+                            "player vs computer",
                             id="modeselect"
                         ),
                         dcc.Textarea(
@@ -110,51 +116,33 @@ app.layout = html.Div(
     ]
 )
 
-# TODO This is not multi-user-ready
-# the connectfour-Object cannot be serialized easily
-# because of some strange stuff with the int-numpy-array, thing
-# so jsonpickle doesn't work
-# The way forward is to store the data on the server
-from connectfour import Connectfour
-cf=Connectfour()
-
-@app.callback(*alloutputs,
+@dashapp.callback(*alloutputs,
               Output('whoseturn','style'),
               Output('whoseturn','children'),
-              # Output("store","data"),
+              ServersideOutput("store","data"),
+              Input('modeselect','value'),
               *allinputs,
-              Input('restart','n_clicks'))
-def udpateboard(b0,b1,b2,b3,b4,b5,b6,nst):
-    # start = time.time()
-    global cf
+              Input('restart','n_clicks'),
+              State("store","data"))
+def udpateboard(mode,b0,b1,b2,b3,b4,b5,b6,nst,cf):
+    logging.debug("updateboard is called")
+    if cf is None:
+        cf=connectfour.Connectfour(mode=mode)
     if ctx.triggered_id is None:
         raise dash.exceptions.PreventUpdate
     elif ctx.triggered_id == "restart":
         cf.reset()
-    else:
-        cf.doturn(int(ctx.triggered_id[1]))
-    # end = time.time()
-    # print("time to update board ", end - start)
-
-    return (*cf.converttoouputlist(), *cf.turntostyle())
-
-@app.callback(Output('textarea',"value"),
-              Input('savetodisk','n_clicks'),
-              Input('modeselect','value'))
-def savetodisk(btn,value):
-    if ctx.triggered_id is None:
-        raise dash.exceptions.PreventUpdate
-    elif ctx.triggered_id=="savetodisk":
-        global cf
-        cf.writetodisk()
-        return "to disk"
     elif ctx.triggered_id=="modeselect":
-        cf.mode=value
-        return "mode "+cf.mode+" selected"
+        cf.mode=mode
+    else:
+        logging.debug("%s was triggered",ctx.triggered_id[1])
+        cf.print()
+        cf.doturn(int(ctx.triggered_id[1]))
+    return (*cf.converttoouputlist(), *cf.turntostyle(), cf)
 
-server=app.server
+app=dashapp.server
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    dashapp.run_server(debug=True)
 
-# stat with: gunicorn dashgui:server -b :8000
+# start with: gunicorn app:app -b :8000

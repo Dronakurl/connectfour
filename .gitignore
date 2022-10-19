@@ -1,7 +1,10 @@
+*.log
 Archiv/
-
+venv
+four
+file_system*
 __py*
 
 *.csv
 *.ftr
-test.py
+test*

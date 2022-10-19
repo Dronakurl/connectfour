@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
 import brutalcomputer
+import logging
+logging.info('Connectfour is loaded')
 
 class Connectfour:
     def reset(self):
+        logging.debug('reset cf object')
         # matrix to store the board's status
-        self.sm=np.zeros((6,7),dtype=np.uint8)
+        self.sm=np.zeros((6,7),dtype=np.int8)
         # 1: red, 2: yellow's turn, red starts
         self.turn=1     
         self.slotid=-1
@@ -14,15 +17,15 @@ class Connectfour:
         # -1: still running, 1: red, 2: yellow, 3: tie
         self.endresult=-1
         # nmber of sequences for each color: red,yellow and possible sequences 2,3,4
-        self.scount=np.zeros((2,3),dtype=np.uint8)
+        self.scount=np.zeros((2,3),dtype=np.int8)
         # a weighted score for red an yellow sequences
-        self.score=np.zeros(2,dtype=np.uint8)
+        self.score=np.zeros(2,dtype=np.int8)
         # a net score
         self.netscore=0
 
-    def __init__(self,cf=None):
+    def __init__(self,cf=None,mode="player vs player"):
         self.gameid=1
-        self.mode="player vs player"
+        self.mode=mode
         # reset function should not wipe the memory, so it's not in reset function
         self.storage=pd.DataFrame(columns=[ "gameid",
                                             "turnid",
@@ -130,7 +133,7 @@ class Connectfour:
             matches+=seqmat.sum()
         
         # search in the diagonals
-        diags=np.zeros((1,6),dtype=np.uint8)
+        diags=np.zeros((1,6),dtype=np.int8)
         for k in range(-5,7):   
             t=np.diag(self.sm,k=k).copy()
             t.resize(6)
@@ -177,24 +180,4 @@ class Connectfour:
         else:
             return {"background-color":"red"},"ERROR" 
 
-# c=Connectfour()
-# c.doturn(col=1)
-# import jsonpickle
-# X=jsonpickle.encode(c)
-# print(x)
 
-# d=Connectfour(c)
-# c.print()
-# d.print()
-
-# c=Connectfour()
-# c.randomdebug()
-# c.print()
-# c.countseq(redyellow=3)
-# c.doturn(col=1)
-# c.doturn(col=4)
-
-# print("2 of 1 ",c.findseq(seq=2,redyellow=1))
-# print("3 of 1 ",c.findseq(seq=3,redyellow=1))
-# print("3 of 1 ",c.findseq(seq=3,redyellow=1))
-# print("3 of 2 ",c.findseq(seq=3,redyellow=2))

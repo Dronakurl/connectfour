@@ -45,7 +45,7 @@ body {
 #logobox {
     text-align:center;
     color:white;
-    font-size:3vh;
+    font-size:10pt;
     vertical-align:center;
 }
 
@@ -53,7 +53,7 @@ body {
     width:50%;
     display:inline;
     font-weight:bolder;
-    font-size:5vh;
+    font-size:20pt;
     color:white;
     text-align:center;
     vertical-align:center;
@@ -76,6 +76,7 @@ body {
     text-align:center;
     display:inline-block;
     margin-left:10px;
+    margin-top:10px;
     margin-bottom:8px;
     padding:5px;
     width:140px;
@@ -83,7 +84,6 @@ body {
 
 
 #board {
-    /* background-color:#080E1F; */
     background-color:rgb(30,30,50);
     text-align:center;
     padding-top:10px;
@@ -92,21 +92,19 @@ body {
 }
 
 #command {
-    /* background-color:#080E1F; */
-    /* background-color:rgb(30,30,50); */
     text-align:center;
     padding-top:10px;
     padding-bottom:10px;
-    /* height:500px; */
+}
+
+.explain {
+    color:white;
 }
 
 #restart {
     margin-left:8px;
+    margin-top:15px;
 }
-
-#savetodisk {
-    margin-left:8px;
-} 
 
 #textarea {
     display:none;
