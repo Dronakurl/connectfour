@@ -57,12 +57,10 @@ app.layout = html.Div(
                     children=buttons
                     ),
                 html.Div(
-                    className="five columns",
+                    className="three columns",
                     id="logobox",                    
-                    children=[ html.Div(id="logo",children="CONNECT 4!"),
-                        html.Div(children="Tap buttons on the top to play"),
-                        html.Div(children="Computer plays yellow")]
-                    )
+                    children=[ html.Div(id="logo",children="CONNECT 4!")
+                        ])
                 ]
             ),
         html.Div(className="row",
@@ -74,8 +72,10 @@ app.layout = html.Div(
                 ),
                 html.Div(
                     id="command",
-                    className="five columns",
+                    className="three columns",
                     children=[
+                        html.Div(children="Tap buttons on the top to play",className="explain"),
+                        html.Div(children="Computer plays yellow",className="explain"),
                         html.Div(
                             "red's turn",
                             id="whoseturn",
@@ -89,7 +89,7 @@ app.layout = html.Div(
                         ),
                         dcc.Dropdown(
                             ["player vs player","player vs computer"],
-                            "player vs player",
+                            "player vs computer",
                             id="modeselect"
                         ),
                         dcc.Textarea(
@@ -115,7 +115,7 @@ app.layout = html.Div(
               State("store","data"))
 def udpateboard(mode,b0,b1,b2,b3,b4,b5,b6,nst,cf):
     if cf is None:
-        cf=connectfour.Connectfour()
+        cf=connectfour.Connectfour(mode=mode)
     if ctx.triggered_id is None:
         raise dash.exceptions.PreventUpdate
     elif ctx.triggered_id == "restart":

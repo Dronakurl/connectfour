@@ -20,9 +20,9 @@ class Connectfour:
         # a net score
         self.netscore=0
 
-    def __init__(self,cf=None):
+    def __init__(self,cf=None,mode="player vs player"):
         self.gameid=1
-        self.mode="player vs player"
+        self.mode=mode
         # reset function should not wipe the memory, so it's not in reset function
         self.storage=pd.DataFrame(columns=[ "gameid",
                                             "turnid",
