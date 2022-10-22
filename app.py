@@ -1,9 +1,21 @@
+# remove previous logs and old data storage
+import os
+os.system("rm -f *.log")
+os.system("cd file_system_store && find . -type f -name '*' -mmin +15 -exec rm {} \; && cd ..")
+import logging
+logging.basicConfig(filename='log.log', level=logging.DEBUG)
+logging.info("start the app")
 import dash
 from dash_extensions.enrich import dcc, html, Dash, Output, Input, State, ServersideOutput
 from dash import ctx
 import numpy 
 import time
 import connectfour
+# for debugging
+import sys
+log_file = open("sysout.log","w")
+sys.stdout = log_file
+print("this will be written to message.log")
 
 # initialize the board and buttons 
 allinputs=[]
@@ -113,6 +125,7 @@ dashapp.layout = html.Div(
               Input('restart','n_clicks'),
               State("store","data"))
 def udpateboard(mode,b0,b1,b2,b3,b4,b5,b6,nst,cf):
+    logging.debug("updateboard is called")
     if cf is None:
         cf=connectfour.Connectfour(mode=mode)
     if ctx.triggered_id is None:
@@ -122,6 +135,8 @@ def udpateboard(mode,b0,b1,b2,b3,b4,b5,b6,nst,cf):
     elif ctx.triggered_id=="modeselect":
         cf.mode=mode
     else:
+        logging.debug("%s was triggered",ctx.triggered_id[1])
+        cf.print()
         cf.doturn(int(ctx.triggered_id[1]))
     return (*cf.converttoouputlist(), *cf.turntostyle(), cf)
 
@@ -130,4 +145,4 @@ app=dashapp.server
 if __name__ == '__main__':
     dashapp.run_server(debug=True)
 
-# start with: gunicorn dashgui:server -b :8000
+# start with: gunicorn app:app -b :8000

@@ -1,9 +1,12 @@
 import numpy as np
 import pandas as pd
 import brutalcomputer
+import logging
+logging.info('Connectfour is loaded')
 
 class Connectfour:
     def reset(self):
+        logging.debug('reset cf object')
         # matrix to store the board's status
         self.sm=np.zeros((6,7),dtype=np.int8)
         # 1: red, 2: yellow's turn, red starts
