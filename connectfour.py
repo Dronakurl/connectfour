@@ -135,10 +135,12 @@ class Connectfour:
         # search in the diagonals
         diags=np.zeros((1,6),dtype=np.int8)
         for k in range(-5,7):   
-            t=np.diag(self.sm,k=k).copy()
-            t.resize(6)
-            s=np.diag(np.fliplr(self.sm),k=k).copy()
-            s.resize(6)
+            t=np.zeros(6,dtype=np.int8)
+            a=np.diag(self.sm,k=k).copy()
+            t[:len(a)] += a
+            s=np.zeros(6,dtype=np.int8)
+            a=np.diag(np.fliplr(self.sm),k=k).copy()
+            s[:len(a)] += a
             diags=np.concatenate(( diags,t[None,:],s[None,:]),axis=0)
         # same pattern as above for horizontal applied to diagonal sequences
         diags=np.delete(diags,0,0)
