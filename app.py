@@ -1,23 +1,28 @@
-# remove previous logs and old data storage
+# remove previous logs 
 import os
-os.system("rm -f *.log")
-os.system("cd file_system_store && find . -type f -name '*' -mmin +15 -exec rm {} \; && cd ..")
+os.system("rm -f -v *.log")
+
+# remove old file system store files from ServersideOutput
+os.system("cd file_system_store && find . -type f -name '*' -mmin +15 -exec rm -v {} \; && cd ..")
+
+# start logging
 import logging
-logging.basicConfig(filename='log.log', level=logging.DEBUG)
+logging.basicConfig(filename='log.log', level=logging.WARNING)
 logging.info("start the app")
+
+# reroute stdout for debugging
+import sys
+log_file = open("sysout.log","w")
+sys.stdout = log_file
+
 import dash
 from dash_extensions.enrich import dcc, html, Dash, Output, Input, State, ServersideOutput
 from dash import ctx
 import numpy 
 import time
 import connectfour
-# for debugging
-import sys
-log_file = open("sysout.log","w")
-sys.stdout = log_file
-print("this will be written to message.log")
 
-# initialize the board and buttons 
+# initialize the inputs for the callback and the circles on the game board
 allinputs=[]
 alloutputs=[]
 chips=[]
@@ -103,6 +108,14 @@ dashapp.layout = html.Div(
                             "player vs computer",
                             id="modeselect"
                         ),
+                        html.Div("search depth of computer enemy",className="explain",
+                            style={"margin-top":"10px","margin-bottom":"5px"}
+                        ),
+                        dcc.Dropdown(
+                            [2,3,4,5],
+                            2,
+                            id="kselect"
+                        ),
                         dcc.Textarea(
                             id="textarea",
                             className="u-full-width",
@@ -123,24 +136,28 @@ dashapp.layout = html.Div(
               Input('modeselect','value'),
               *allinputs,
               Input('restart','n_clicks'),
+              Input('kselect','value'),
               State("store","data"))
-def udpateboard(mode,b0,b1,b2,b3,b4,b5,b6,nst,cf):
+def udpateboard(mode,b0,b1,b2,b3,b4,b5,b6,nst,k,cf):
     logging.debug("updateboard is called")
     if cf is None:
-        cf=connectfour.Connectfour(mode=mode)
+        cf=connectfour.Connectfour(mode=mode,k=k)
     if ctx.triggered_id is None:
         raise dash.exceptions.PreventUpdate
     elif ctx.triggered_id == "restart":
         cf.reset()
     elif ctx.triggered_id=="modeselect":
         cf.mode=mode
+    elif ctx.triggered_id=="kselect":
+        cf.k=k
+        logging.info("depth set to: %d",k)
     else:
         logging.debug("%s was triggered",ctx.triggered_id[1])
-        cf.print()
         cf.doturn(int(ctx.triggered_id[1]))
     return (*cf.converttoouputlist(), *cf.turntostyle(), cf)
 
 app=dashapp.server
+app.secret_key = 'super secret key'
 
 if __name__ == '__main__':
     dashapp.run_server(debug=True)
