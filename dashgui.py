@@ -37,14 +37,13 @@ for yi in range(0,7):
 
 ## dash Layout aufsetzen
 external_stylesheets = ['https://fonts.googleapis.com/css2?family=Lato&display=swap']
-app = Dash(__name__,external_stylesheets=external_stylesheets) 
-server=app.server
+dashapp = Dash(__name__,external_stylesheets=external_stylesheets) 
 
-# app.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
-app.css.config.serve_locally = True
-app.title="Connect 4 - the game"
+# dashapp.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
+dashapp.css.config.serve_locally = True
+dashapp.title="Connect 4 - the game"
 
-app.layout = html.Div(
+dashapp.layout = html.Div(
     className="container",
     style={ "max-width":"1200px",
             "margin-top":"15px"},
@@ -105,7 +104,7 @@ app.layout = html.Div(
     ]
 )
 
-@app.callback(*alloutputs,
+@dashapp.callback(*alloutputs,
               Output('whoseturn','style'),
               Output('whoseturn','children'),
               ServersideOutput("store","data"),
@@ -126,9 +125,9 @@ def udpateboard(mode,b0,b1,b2,b3,b4,b5,b6,nst,cf):
         cf.doturn(int(ctx.triggered_id[1]))
     return (*cf.converttoouputlist(), *cf.turntostyle(), cf)
 
-server=app.server
+app=dashapp.server
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    dashapp.run_server(debug=True)
 
 # start with: gunicorn dashgui:server -b :8000
