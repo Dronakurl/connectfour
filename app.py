@@ -1,24 +1,28 @@
-# remove previous logs and old data storage
+# remove previous logs 
 import os
-os.system("rm -f *.log")
-res=os.system("cd file_system_store && find . -type f -name '*' -mmin +15 -exec rm -v {} \; && cd ..")
+os.system("rm -f -v *.log")
+
+# remove old file system store files from ServersideOutput
+os.system("cd file_system_store && find . -type f -name '*' -mmin +15 -exec rm -v {} \; && cd ..")
+
+# start logging
 import logging
 logging.basicConfig(filename='log.log', level=logging.WARNING)
 logging.info("start the app")
-logging.info("result from deletion of file_system_store: %s",res)
+
+# reroute stdout for debugging
+import sys
+log_file = open("sysout.log","w")
+sys.stdout = log_file
+
 import dash
 from dash_extensions.enrich import dcc, html, Dash, Output, Input, State, ServersideOutput
 from dash import ctx
 import numpy 
 import time
 import connectfour
-# for debugging
-import sys
-log_file = open("sysout.log","w")
-sys.stdout = log_file
-print("this will be written to message.log")
 
-# initialize the board and buttons 
+# initialize the inputs for the callback and the circles on the game board
 allinputs=[]
 alloutputs=[]
 chips=[]
