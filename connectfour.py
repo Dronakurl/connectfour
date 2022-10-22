@@ -4,6 +4,51 @@ import brutalcomputer
 import logging
 logging.info('Connectfour is loaded')
 
+# solution by https://stackoverflow.com/questions/74178272/numpy-diagonal-function-is-slow?noredirect=1#comment130970516_74178272   
+known_diagonals = dict()
+def diagonal_indices(h: int, w: int, length: int = 3) -> np.array:
+    '''
+    Returns array (shape diagonal_count x length) of diagonal indices
+    of a flatten array
+    '''
+    # one of many ways to store precomputed function output
+    # cleaner way would probably be to do this outside this function
+    diagonal_indices_key = (h, w, length)
+    if diagonal_indices_key in known_diagonals:
+        return known_diagonals[diagonal_indices_key]
+    
+    diagonals_count = (h + 1 - length) * (w + 1 - length) * 2
+
+    # default value is meant to ease process with cumsum:
+    # adding h + 1 selects an index 1 down and 1 right, h - 1 index 1 down 1 left
+    # firts half dedicated to right down diagonals
+    diagonals = np.full((diagonals_count, length), w + 1, dtype=np.int32)
+    # second half dedicated to left down diagonals
+    diagonals[diagonals_count//2::] = w - 1
+
+    # this could have been calculated mathematicaly
+    flat_indices = np.arange(w * h).reshape((h, w))
+    # print(flat_indices)
+
+    # selects rectangle offseted by l - 1 from right and down edges
+    diagonal_starts_rd = flat_indices[:h + 1 - length, :w + 1 - length]
+    # selects rectangle offseted by l - 1 from left and down edges
+    diagonal_starts_ld = flat_indices[:h + 1 - length, -(w + 1 - length):]
+    
+    # sets starts
+    diagonals[:diagonals_count//2, 0] = diagonal_starts_rd.flatten()
+    diagonals[diagonals_count//2::, 0] = diagonal_starts_ld.flatten()
+
+    # sum triplets left to right
+    # diagonals contains triplets (or vector of other length) of (start, h+-1, h+-1). cumsum makes diagonal indices
+    diagonals = diagonals.cumsum(axis=1)
+
+    # save ouput
+    known_diagonals[diagonal_indices_key] = diagonals
+
+    return diagonals
+
+
 class Connectfour:
     def reset(self):
         logging.debug('reset cf object')
@@ -41,11 +86,13 @@ class Connectfour:
         self.reset()
         if isinstance(cf,Connectfour):
             self.sm=np.copy(cf.sm)
+            self.turn=cf.turn
 
     def print(self):
         print(self.sm)
         print("turn: ","red" if self.turn==1 else "yellow")
         print("turnid: ",self.turnid)
+        print("endresult: ",self.endresult)
 
     # Save one turn to the pandas DataFrame
     def saveoneturn(self):
@@ -80,7 +127,7 @@ class Connectfour:
 
     # Do one turn based on selected colum
     # and return whether it was an acceptable move
-    def doturn(self,col,countseq=True,saveoneturn=True,computer=True):
+    def doturn(self,col,countseq=True,saveoneturn=True,computer=True)->int:
         if self.endresult>0:
             return 0
 
@@ -109,10 +156,10 @@ class Connectfour:
         else:
             return -1
 
-    def findfour(self,redyellow=1):
+    def findfour(self, redyellow: int=1)->bool:
         return self.findseq(seq=4,redyellow=redyellow)>0
     
-    def countseq(self,redyellow=1):
+    def countseq(self, redyellow: int=1):
         rllist=[1,2] if redyellow==3 else [redyellow]
         for redyellowi in rllist:
             for seqc in range(3):
@@ -121,8 +168,9 @@ class Connectfour:
         self.score=(self.scount*np.array([2,5,1000])).sum(axis=1)
         self.netscore=self.score[0]-self.score[1]
 
-    def findseq(self,seq=2,redyellow=1):
+    def findseq(self , seq: int =2, redyellow: int=1) -> int:
         matches=0
+
         # search horizontally and vertically
         for axis in [0,1]:
             Na=np.size(self.sm,axis=axis)
@@ -134,29 +182,35 @@ class Connectfour:
             else:
                 seqmat=np.all(self.sm[n,:]==redyellow,axis=1)
             matches+=seqmat.sum()
-        
-        # search in the diagonals
-        diags=np.zeros((1,6),dtype=np.int8)
-        for k in range(-5,7):   
-            t=np.zeros(6,dtype=np.int8)
-            a=np.diag(self.sm,k=k).copy()
-            t[:len(a)] += a
-            s=np.zeros(6,dtype=np.int8)
-            a=np.diag(np.fliplr(self.sm),k=k).copy()
-            s[:len(a)] += a
-            diags=np.concatenate(( diags,t[None,:],s[None,:]),axis=0)
-        # same pattern as above for horizontal applied to diagonal sequences
-        diags=np.delete(diags,0,0)
-        Na=np.size(diags,axis=1)
-        n=np.arange(Na-seq+1)[:,None]+np.arange(seq)
-        seqmat=np.all(diags[:,n]==redyellow,axis=2)
-        matches+=seqmat.sum()
 
+        # find the diagonals
+        diagonals = diagonal_indices(*self.sm.shape, seq)
+        seqmat = np.all(self.sm.flatten()[diagonals] == redyellow, axis=1)
+        matches += seqmat.sum()
         return matches
 
     def randomdebug(self):
-        self.sm=np.random.randint(0,3,size=(6,7))
         self.sm=np.array([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,2,1,1,0,0]])
+        self.sm=np.random.randint(0,3,size=(6,7))
+        
+        # # search in the diagonals
+        # diags=np.zeros((1,6),dtype=np.int8)
+        # for k in range(-5,7):   
+        #     t=np.zeros(6,dtype=np.int8)
+        #     a=np.diag(self.sm,k=k).copy()
+        #     t[:len(a)] += a
+        #     s=np.zeros(6,dtype=np.int8)
+        #     a=np.diag(np.fliplr(self.sm),k=k).copy()
+        #     s[:len(a)] += a
+        #     diags=np.concatenate(( diags,t[None,:],s[None,:]),axis=0)
+        # # same pattern as above for horizontal applied to diagonal sequences
+        # diags=np.delete(diags,0,0)
+        # Na=np.size(diags,axis=1)
+        # n=np.arange(Na-seq+1)[:,None]+np.arange(seq)
+        # seqmat=np.all(diags[:,n]==redyellow,axis=2)
+        # matches+=seqmat.sum()
+
+        return matches
 
     # convert the status to a list of classname for output in dash
     #   the list iterates through the board like reading a text
