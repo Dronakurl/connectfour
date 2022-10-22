@@ -36,17 +36,22 @@ class Brutalcomputer:
     def findbestbranch(self):
         logging.info("brutalcomputer.findbestbranch with k=%d",self.k)
         gc=self.brutalmatrix
+        # print(self.sf.sm)
+        # print("turn ",self.sf.turn)
+        # print(gc)
         for ik in range(self.k-1):
             groupcol=gc.columns.values.tolist()[0:-2]
             dropcol=gc.columns.values.tolist()[-2:-1]
-            # print("######## k #####",ik,self.k,((self.k-ik-1) % 2) )
-            if ((self.k-ik-1) % 2) != 0: 
+            minmax="min" if (self.sf.turn==2)!=(((self.k-ik-1) % 2) != 0) else "max"
+            # print("######## k #####",ik,self.k,minmax)
+            if minmax=="min": 
                 gc=gc.drop(dropcol,axis=1).groupby(groupcol).min().reset_index()
             else:
                 gc=gc.drop(dropcol,axis=1).groupby(groupcol).max().reset_index()
             # print(gc)
             # print("################")
-        return gc.sort_values("netscore",ascending=False).reset_index().loc[0,0]
+        gc["centerness"]=abs(gc[0]-3)
+        return gc.sort_values("centerness").sort_values("netscore",ascending=(self.sf.turn==2)).reset_index().loc[0,0]
 
     def calcposs(self,k=1):
         # logging.info("brutalcomputer.calcposs with k=%d",k)

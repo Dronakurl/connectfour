@@ -41,11 +41,13 @@ class Connectfour:
         self.reset()
         if isinstance(cf,Connectfour):
             self.sm=np.copy(cf.sm)
+            self.turn=cf.turn
 
     def print(self):
         print(self.sm)
         print("turn: ","red" if self.turn==1 else "yellow")
         print("turnid: ",self.turnid)
+        print("endresult: ",self.endresult)
 
     # Save one turn to the pandas DataFrame
     def saveoneturn(self):
@@ -155,8 +157,8 @@ class Connectfour:
         return matches
 
     def randomdebug(self):
-        self.sm=np.random.randint(0,3,size=(6,7))
         self.sm=np.array([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,2,1,1,0,0]])
+        self.sm=np.random.randint(0,3,size=(6,7))
 
     # convert the status to a list of classname for output in dash
     #   the list iterates through the board like reading a text
