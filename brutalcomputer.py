@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import connectfour
 import random
+import logging
 
 class Brutalcomputer:
     def __init__(self,cf=None,k=2):
@@ -33,6 +34,7 @@ class Brutalcomputer:
             return self.findbestbranch()
 
     def findbestbranch(self):
+        logging.info("brutalcomputer.findbestbranch with k=%d",self.k)
         gc=self.brutalmatrix
         for ik in range(self.k-1):
             groupcol=gc.columns.values.tolist()[0:-2]
@@ -47,11 +49,12 @@ class Brutalcomputer:
         return gc.sort_values("netscore",ascending=False).reset_index().loc[0,0]
 
     def calcposs(self,k=1):
+        # logging.info("brutalcomputer.calcposs with k=%d",k)
         for possmove in range(7):
             smcp=self.sf.sm.copy()
             turncp=self.sf.turn
             # ignore impossible moves
-            if self.sf.doturn(col=possmove,saveoneturn=False,countseq=False)==1:
+            if self.sf.doturn(col=possmove,computer=False,saveoneturn=False,countseq=False)==1:
                 self.slothist.append(possmove)
 
                 # print("debug in possmove",k, possmove)

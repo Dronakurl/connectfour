@@ -20,12 +20,15 @@ class Connectfour:
         self.scount=np.zeros((2,3),dtype=np.int8)
         # a weighted score for red an yellow sequences
         self.score=np.zeros(2,dtype=np.int8)
-        # a net score
+        # net score
         self.netscore=0
 
-    def __init__(self,cf=None,mode="player vs player"):
+    def __init__(self,cf=None,mode="player vs computer",k=2):
         self.gameid=1
+        # game mode for player vs. player option
         self.mode=mode
+        # the search depth of the computer enemy
+        self.k=k
         # reset function should not wipe the memory, so it's not in reset function
         self.storage=pd.DataFrame(columns=[ "gameid",
                                             "turnid",
@@ -77,7 +80,7 @@ class Connectfour:
 
     # Do one turn based on selected colum
     # and return whether it was an acceptable move
-    def doturn(self,col,countseq=True,saveoneturn=True):
+    def doturn(self,col,countseq=True,saveoneturn=True,computer=True):
         if self.endresult>0:
             return 0
 
@@ -99,8 +102,8 @@ class Connectfour:
                 self.saveoneturn()
             if self.endresult<0:
                 self.turn=2 if self.turn==1 else 1
-                if self.mode=="player vs computer" and self.turn==2:
-                    bc = brutalcomputer.Brutalcomputer(self,k=2)
+                if self.mode=="player vs computer" and computer==True and self.turn==2:
+                    bc = brutalcomputer.Brutalcomputer(self,k=self.k)
                     self.doturn(bc.nextturn(method="brutal"),countseq=countseq,saveoneturn=saveoneturn)
             return 1
         else:
