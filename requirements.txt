@@ -7,7 +7,7 @@ dash-extensions==0.1.6
 dash-html-components==2.0.0
 dash-table==5.0.0
 EditorConfig==0.12.3
-Flask==2.2.2
+Flask
 Flask-Caching==2.0.0
 Flask-Compress==1.13
 gunicorn==20.1.0
