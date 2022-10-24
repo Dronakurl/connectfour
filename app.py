@@ -52,11 +52,9 @@ for yi in range(0,7):
                         )
                     ))
 
-## dash Layout aufsetzen
+# setup dash app 
 external_stylesheets = ['https://fonts.googleapis.com/css2?family=Lato&display=swap']
 dashapp = Dash(__name__,external_stylesheets=external_stylesheets) 
-
-# dashapp.head = [html.Link(rel='stylesheet', href='//fonts.googleapis.com/css?family=Lato:400,300,600')]
 dashapp.css.config.serve_locally = True
 dashapp.title="Connect 4 - the game"
 
