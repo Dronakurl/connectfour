@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "connectfour"
+version = "0.1.0"
+description = "Connect four - the game - implemented in python and dash.  "
+authors = ["Dronakurl <konrad2710@gmail.com>"]
+license = "GPL-3.0-or-later"
+homepage = "https://github.com/Dronakurl/connectfour/"
+keywords = ["connectfour", "game", "dash", "python"]
+repository = "https://github.com/Dronakurl/connectfour/"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "2.0.3"
+dash = "^2.11.1"
+dash-extensions = "^1.0.1"
+gunicorn = "^20.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+
+[tool.pyright]
+include = ["**/*.py"]
+exclude = [ "**/__pycache__",
+    ".archiv/**"
+]
+ignore = ["**/__init__.py"]
+typeCheckingMode = "off"
+reportGeneralTypeIssues = false
+reportMissingTypeStubs = false
+useLibraryCodeForTypes = false
+pythonVersion = "^3.9"
+pythonPlatform = "Linux"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    "--import-mode=importlib",
+    "-ra -q",
+    # "--disable-warnings",
+    "--ignore=.archiv",
+]
+pythonpath = ["."]
+testpaths = [
+    "tests",
+]

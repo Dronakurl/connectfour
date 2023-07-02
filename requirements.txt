@@ -1,8 +1,8 @@
-numpy==1.21
-Flask==2.1.2
-Flask-Caching==2.0.0
+numpy
+Flask
+Flask-Caching
 Flask-Compress
-more-itertools==8.12.0  
+more-itertools
 Brotli
 cachelib
 click

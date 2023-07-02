@@ -1,4 +1,6 @@
 *.log
+.archiv
+.dockerignore
 Archiv/
 venv
 four
