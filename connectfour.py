@@ -209,16 +209,17 @@ class Connectfour:
         # n=np.arange(Na-seq+1)[:,None]+np.arange(seq)
         # seqmat=np.all(diags[:,n]==redyellow,axis=2)
         # matches+=seqmat.sum()
+        return 0
 
-        return matches
+        # return matches
 
     def converttoouputlist(self):
         """Convert the status to a list of classnames for output in dash
         
         the list iterates through the board like reading a text
         starting from upper left, line by line
-        newlist=[]
         """
+        newlist=[]
         stylemap={0:'chips grau',1:'chips rot',2:'chips gelb'}
         for _, row in dict(enumerate(self.sm)).items():
             for _, value in dict(enumerate(row)).items():
